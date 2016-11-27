@@ -3,7 +3,7 @@ _A php library that makes SQL simpel._
 
 
 # Installation
-
+``composer require nytrix/simpelsql
 
 # Usage
 ```php
