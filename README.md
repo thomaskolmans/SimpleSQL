@@ -20,6 +20,3 @@ _A php library that makes SQL simpel._
 
 
 
-
-
-**Copyright - 2016 Thomas Kolmans. All rights reserved.**
