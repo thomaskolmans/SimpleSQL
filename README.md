@@ -3,8 +3,9 @@ _A php library that makes SQL simpel._
 
 
 # Installation
-``composer require nytrix/simpelsql
-
+```sh
+composer require nytrix/simpelsql
+```
 # Usage
 ```php
 <?php
