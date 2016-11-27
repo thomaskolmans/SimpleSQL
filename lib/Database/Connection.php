@@ -2,7 +2,7 @@
 namespace lib\Database;
 
 use \PDO;
-use Exception\InvalidInputException;
+use lib\Exception\InvalidInputException;
 
 class Connection{
 
@@ -63,7 +63,11 @@ class Connection{
     }
 
     public function isClosed(){
-        return $this->is("clossed");
+        return $this->is("closed");
     }
 
+    public function getConnection(){
+        return $this->connection;
+    }
+}
 ?>

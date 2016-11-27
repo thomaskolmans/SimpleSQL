@@ -1,12 +1,12 @@
 <?php
 return array(
-    "connection" => 
+    "primary" => 
         array(  
             "host"          => "localhost",
             "databasename"  => "nytrix",
-            "username"      => "",
+            "username"      => "root",
             "password"      => ""
-        );
-    );
-}
+        )
+);
+
 ?>
