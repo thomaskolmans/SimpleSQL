@@ -3,11 +3,11 @@ _A php library that makes SQL simpel._
 
 
 # Installation
-We recommend using `composoer` to install our library. 
+We recommend using `composor` to install our library. Look at how to install composor [here](https://getcomposer.org/)
 ```sh
 composer require nytrix/simpelsql
 ```
-You can also download the library and install it manually. 
+You can also download the library and install it manually. Download button will be added when the first official release is there.
 
 # Usage
 ```php
