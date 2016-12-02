@@ -14,5 +14,8 @@
             "email":    "contact@thomaskolmans.nl",
             "homepage": "http://ocramius.github.com/"
         }
-    ]
+    ],
+    "require": {
+        "php": ">=5.3,<8.0-DEV"
+    }
 }

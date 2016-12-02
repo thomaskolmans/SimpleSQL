@@ -3,10 +3,17 @@ return array(
     "primary" => 
         array(  
             "host"          => "localhost",
-            "databasename"  => "nytrix",
+            "databasename"  => "Nytrix",
             "username"      => "root",
             "password"      => ""
-        )
+        ),
+    "second" =>
+        array(  
+            "host"          => "localhost",
+            "databasename"  => "Nytrix",
+            "username"      => "not",
+            "password"      => ""
+        ),
 );
 
 ?>

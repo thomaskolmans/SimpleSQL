@@ -2,6 +2,7 @@
 namespace lib\Database;
 
 use \PDO;
+use lib\SimpelSQL;
 use lib\Exception\InvalidInputException;
 
 class Connection{
@@ -27,10 +28,14 @@ class Connection{
     public function open(){
         try{
             $this->connection = new PDO("mysql:host=".$this->host.";dbname=".$this->dbname."",$this->username,$this->password);
-            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);            
+            if(SimpelSQL::getSettings("PDO_errors")){
+                $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
+            }else{
+                $this->connection->setAttribute(PDO::ERRMODE_SILEN);
+            }
         }catch(Exception $e){
-            return false;
-        }
+            throw new ConnectionExcpetion("Unable to connect, check the values of your connection");
+        }     
         return $this->connection;
     }
 
