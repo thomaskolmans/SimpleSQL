@@ -75,31 +75,29 @@ class SQL{
         return $query;
     }
 
-    public static function select($table,$column,$whereequals = array()){
+    public static function select($column,$table,$whereequals = array()){
         $sql = self::getInstance();
-        $query = $sql->connection->prepare("SELECT * FROM ".$table."".$sql->where($whereequals));
+        if(is_array($column)){
+            $querycolumn = implode(", ",$column);
+        }elseif($column == "*"){
+            $querycolumn = "*";
+        }else{
+            $querycolumn = $column;
+        }
+        $query = $sql->connection->prepare("SELECT ".$querycolumn." FROM ".$table."".$sql->where($whereequals));
         $sql->bind($query,$whereequals)->execute();
         $fetch  = $query->fetchAll();
-        if(count(func_get_args()) > 3){
-            $count = count(func_get_args()) -1;
-            $result = func_get_arg($count);
-        }else{
-            $result = 0;
-        }
         if(!empty($fetch)){
-            if($column != null && $column != "*"){
-                return $fetch[$result][$column];
-            }elseif($result != "all"){
-                return $fetch[$result];
-            }else{
-                return $fetch;
-            }   
+            if(count($fetch) > 1){
+
+            }
+            return $fetch[0];
         }else{
             return null;
         }
     }
 
-    public static function update($table,$column,$whereequals,$to){
+    public static function update($column,$table,$whereequals,$to){
         $sql = self::getInstance();
         $query = $sql->connection->prepare("UPDATE ".$table." SET ".$column."=:value".$sql->where($whereequals));
         $query->bindParam(":value",$to);
@@ -186,6 +184,7 @@ class SQL{
     }
 
     public static function index(){
+        $instance = self::getInstance();
     }
 
     public static function count($table,$whereequals){
@@ -195,7 +194,11 @@ class SQL{
     }
 
     public static function avg(){
-        
+        $instance = self::getInstance();
+    }
+
+    public static function max(){
+
     }
 }
 

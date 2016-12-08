@@ -51,7 +51,8 @@ class SimpelSQL extends SQL{
     }
 
     public function backup(){
-
+        $database = new Database;
+        return $database->backup();
     }
 }
 

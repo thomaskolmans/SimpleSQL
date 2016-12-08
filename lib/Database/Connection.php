@@ -31,7 +31,7 @@ class Connection{
             if(SimpelSQL::getSettings("PDO_errors")){
                 $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
             }else{
-                $this->connection->setAttribute(PDO::ERRMODE_SILEN);
+                $this->connection->setAttribute(PDO::ERRMODE_SILENT, PDO::ERRMODE_EXCEPTION);
             }
         }catch(Exception $e){
             throw new ConnectionExcpetion("Unable to connect, check the values of your connection");
