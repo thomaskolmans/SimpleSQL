@@ -75,7 +75,7 @@ class SQL{
         return $query;
     }
 
-    public static function select($column,$table,$whereequals = array()){
+    public static function select($column,$table,$whereequals = array(),$limit = null){
         $sql = self::getInstance();
         if(is_array($column)){
             $querycolumn = implode(", ",$column);
@@ -88,19 +88,41 @@ class SQL{
         $sql->bind($query,$whereequals)->execute();
         $fetch  = $query->fetchAll();
         if(!empty($fetch)){
+            $output = [];
             if(count($fetch) > 1){
-
+                foreach($fetch as $result){
+                    $result = array_filter($result,function($var){
+                        return !is_int($var);
+                    },ARRAY_FILTER_USE_KEY);
+                    array_push($output,$result);
+                }
             }
-            return $fetch[0];
+            return $output;
         }else{
             return null;
         }
     }
 
     public static function update($column,$table,$whereequals,$to){
-        $sql = self::getInstance();
-        $query = $sql->connection->prepare("UPDATE ".$table." SET ".$column."=:value".$sql->where($whereequals));
-        $query->bindParam(":value",$to);
+        $sql = self::getInstance()->connection;
+        $values = array();
+        if(is_array($column)){
+            $squery = "UPDATE ".$table." SET";
+            $columnnumber = 0;
+            foreach($column as $col){
+                $key    = $this->create_key();
+                $squery  .= " SET ".$col."=:".$key;
+                $columnnumber++;
+            }
+            $squery .= $sql->where($whereequals);
+            $query = $sql->prepare($squery);
+        }else{
+            $values[":value"] = $to;
+            $query = $sql->prepare("UPDATE ".$table." SET ".$column."=:value".$sql->where($whereequals));
+        }
+        foreach(array_keys($values) as $columnkey){
+            $query->bindParam($columnkey,$values[$columnkey]);  
+        }
         $sql->bind($query,$whereequals)->execute();
     }
 
@@ -131,14 +153,14 @@ class SQL{
         $query = $sql->connection->prepare("CREATE DATABASE ".$name);
         $query->execute();
     }
-    public static function create($table,$values,$primarykey){
+    public static function create($table,array $values,$primarykey){
         $valuestring = "";
         $size = sizeof($values);
         foreach($values as $key => $value){
             $valuestring .= $key." ".$value.",";
         }
         $valuestring .= "primary key (".$primarykey.")";
-        $query = self::getInstance()->connection->prepare("CREATE TABLE ".$tablename." (".$valuestring.") ");
+        $query = self::getInstance()->connection->prepare("CREATE TABLE ".$table." (".$valuestring.") ");
         $query->execute();
     }
 
@@ -192,6 +214,17 @@ class SQL{
         self::getInstance()->bind($query,$whereequals)->execute();
         return $query->rowCount();
     }
+    public static function show_tables($database = ""){
+        $sql = self::getInstance()->connection;
+        $query = $sql->prepare('show tables from nytrix');
+        $query->execute();
+        $fetch = $query->fetchAll();
+        return $fetch;
+    }
+    public static function show_databases(){
+        $sql = self::getInstance()->connection;
+        $query = $sql->prepare("show database");
+    }
 
     public static function avg(){
         $instance = self::getInstance();
@@ -199,6 +232,9 @@ class SQL{
 
     public static function max(){
 
+    }
+    private function create_key(){
+        return md5(microtime().rand());
     }
 }
 

@@ -15,6 +15,7 @@ class Query{
     public $and     = array();
     public $or      = array();
     public $columns = array();
+    public $tables  = array();
 
     public function __construct($con = null,$config = "primary"){
         if($con != null){
@@ -27,13 +28,36 @@ class Query{
             $this->instance = $c->connection;
         }
     }
-
+    public function __clone(){
+        $this->instance = clone $this->instance;
+    }
     public function select(){
          $this->query .= 'SELECT ' . (func_num_args() == 0 ? '*' : '`' . implode("`, `", func_get_args()) . '`');
          foreach(func_get_args() as $column){
             array_push($this->columns, $column);
          }
          return $this;
+    }
+    public function delete(){
+        $this->query .= 'DELETE ' . (func_num_args() == 0 ? '*' : '`' . implode("`, `", func_get_args()) . '`');
+         foreach(func_get_args() as $column){
+            array_push($this->columns, $column);
+         }
+         return $this;
+    }
+    public function update($table){
+        $this->query .= 'UPDATE $table';
+        return $this;
+    }
+    public function to(){
+        $this->query .= ' SET ' . (func_num_args() == 0 ? '*' : '`' . implode("`, `", func_get_args()) . '`');
+    }
+    public function insert($table,...$values){
+        $this->query .= 'INSERT INTO';
+        return $this;
+    }
+    public function create($type){
+        $this->query .= "CREATE "   ;
     }
     public function select_desctinct(){
          $this->query .= 'SELECT DISTINCT ' . (func_num_args() == 0 ? '*' : '`' . implode("`, `", func_get_args()) . '`');
@@ -72,21 +96,54 @@ class Query{
         }
         return $this;
     }
-    public function join($type,$table){
-        $this->query .= "INNER JOIN $table";
+    public function join(){
+        $args = $this->join_arguments(func_get_args());
+        $this->query .= " INNER JOIN $args[0] ON ".$args[1]."=".$args[2];
         return $this;
     }
+    private function join_arguments(){
+        $args = func_get_args()[0];
+        $id1 = "";
+        $id2 = "";
+        $table = "";
+        if(count($args) < 2){
+            throw new InvalidInputException("join functions need between 2 or 4 arguments");
+        }
+        if(count($args) == 2){
+            if(is_array($args[0]) && is_array($args[1])){
+                $arr2 = $args[1];
+                $arr1 = $args[0];
+                $table = $arr1[0];
+                $id1 = $arr2[0].".".$arr2[1];
+                $id2 = $arr1[0].".".$arr1[1];
+            }else{
+                throw new InvalidInputException("the 2 arguments need to be arrays");
+            }
+        }
+        if(count($args) == 3){
+            $table = $args[0];
+            $id1 = $args[1];
+            $id2 = $args[2];
+        }
+        return array($table,$id1,$id2);
+    }
     public function inner_join(){
-
+        return $this->join(func_get_args());
     }
     public function left_join(){
-
+        $args = $this->join_arguments(func_get_args());
+        $this->query .= " LEFT JOIN $args[0] ON ".$args[1]."=".$args[2];
+        return $this;
     }
     public function right_join(){
-
+        $args = $this->join_arguments(func_get_args());
+        $this->query .= " RIGHT JOIN $args[0] ON ".$args[1]."=".$args[2];
+        return $this;
     }
     public function full_join(){
-
+        $args = $this->join_arguments(func_get_args());
+        $this->query .= " FULL OUTER JOIN $args[0] ON ".$args[1]."=".$args[2];
+        return $this;
     }
     public function and(){
         $args = func_get_args();
@@ -116,7 +173,6 @@ class Query{
     }
     public function or(){
         $args = func_get_args();
-        if(count($args) < 3){
             if(count($args) == 1){
                 if(is_array($args[0])){
                     if(count($args[0]) > 1){
@@ -128,29 +184,31 @@ class Query{
                     $this->and[$key] = $value;
                     $this->query .= " OR ".$column."=:".$key;
                 }
-            }elseif(count($args) == 2){
+            }
+            if(count($args) > 2){
                 $column = func_get_arg(0);
                 $value = func_get_arg(1);
                 $key = $this->create_key();
                 $this->and[$key] = $value;
                 $this->query .= " OR ".$column."=:".$key;
             }
-        }else{
-            throw new InvalidInputException("Invalid input, please check the syntax");
-        }
         return $this;
     }
     public function like(){
         $this->query .= "";
-    }
-    public function not_like(){
-
-    }
-    public function order_by(){
-
+        return $this;
     }
     public function as(){
-        
+        $args = func_get_args();
+        if(count($args) > 1){
+            $this->query .= " AS ".implode("`, `", func_get_args());
+        }else{
+            throw new InvalidInputException("Aliases can only be 1, or must be defined for each column.");
+        }
+        return $this;
+    }
+    public function show(){
+        $this->query .= ("SHOW ".implode("`, `", func_get_args()) . '`');
     }
     public function execute($destroy = true){
         $s = $this->instance->prepare($this->query);
@@ -171,25 +229,22 @@ class Query{
         return $this->query;
     }
     public function getResults($s){
-        if(count($this->columns) > 1){
-            $output = [];
-            $i = 0;
-            foreach($s->fetchAll() as $result){
-                array_push($output,array());
-                foreach(array_keys($result) as $column){
-                    if(in_array($column,$this->columns,true)){
-                        array_push($output[$i],$result[$column]);
-                    }
+        $fetch = $s->fetchAll();
+        $output = [];
+        foreach($fetch as $result){
+            $result = array_filter($result,function($var){
+                return !is_int($var);
+            },ARRAY_FILTER_USE_KEY);
+            array_push($output,$result);
+        }
+        if(count($output) == 1){
+            if(count($output[0]) == 1){
+                foreach($output[0]  as $res){
+                    return $res;
                 }
-                $i++;
-            }
-        }else{
-            if($this->columns[0] == "*"){
-                return $s->fetchAll();
             }else{
-                $output = $s->fetchAll()[0][$this->columns[0]];
+                return $output[0];
             }
-
         }
         return $output;
     }
@@ -197,7 +252,10 @@ class Query{
         $this->like    = array();
         $this->from    = array();
         $this->where   = array();
-        $this->column  = array();
+        $this->and     = array();
+        $this->or      = array();
+        $this->columns = array();
+        $this->tables  = array();
     }
 
     private function create_key(){

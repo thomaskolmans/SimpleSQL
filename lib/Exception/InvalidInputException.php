@@ -1,7 +1,9 @@
 <?php
 namespace lib\Exception;
 
-class InvalidInputException extends CustomException{
+use lib\Exception\SimpelSQLException;
+
+class InvalidInputException extends SimpelSQLException{
     
 }
 ?>

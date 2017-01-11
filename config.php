@@ -3,7 +3,7 @@ return array(
     "primary" => 
         array(  
             "host"          => "localhost",
-            "databasename"  => "",
+            "databasename"  => "Nytrix",
             "username"      => "root",
             "password"      => ""
         ),

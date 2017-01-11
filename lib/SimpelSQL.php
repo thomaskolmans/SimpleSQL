@@ -5,6 +5,8 @@ namespace lib;
 use lib\Database\Query;
 use lib\Database\Connection;
 use lib\Database\SQL;
+use lib\Database\Database;
+use lib\Database\RawQuery;
 
 class SimpelSQL extends SQL{
 
@@ -23,6 +25,9 @@ class SimpelSQL extends SQL{
     }
     
     public function query(){
+        if(count(func_get_args()) > 0 ){
+            return new RawQuery(func_get_args());
+        }
         return new Query($this->connection);
     }
 
@@ -52,7 +57,7 @@ class SimpelSQL extends SQL{
 
     public function backup(){
         $database = new Database;
-        return $database->backup();
+        return $database->backup(self::$data);
     }
 }
 
