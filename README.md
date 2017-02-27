@@ -1,7 +1,7 @@
 # SimpleSQL
 _A php library that makes SQL simpel._ Build your applications much faster with *simple* and fast communication to your database. 
 
-# Why SimpleSQL?
+# Why?
 SimpleSQL is a very lightweight library that will speed up your proccess of creating, selecting, updating and all your other SQL queries. It's a very easy syntax and has also multiple ways of doing your queries, there is a basic set of SQL functions that will work with the documented parameters, but then you can also *build* your own query through our building structure. 
 
 # Installation
@@ -12,9 +12,9 @@ composer require nytrix/simplesql
 You can also download the library and install it manually. Download button will be added when the first official release is there.
 
 # Usage
-Examples of SQL queries, simply in PHP. 
+_Examples of SQL queries, simply in PHP._
 
-**Create instance**
+**Create instance**<br>
 Create your SimpleSQL instance, this will be used in the examples below. 
 ```php
 <?php
@@ -22,6 +22,8 @@ Create your SimpleSQL instance, this will be used in the examples below.
     $sql = new SimpleSQL; 
 ?>
 ```
+# Functions
+
 **Select**
 
 ```php
@@ -44,7 +46,10 @@ $sql->insert("table",array("value1","value2","value3"));
 $sql->create("table",array("id int auto_increment",name varchar(255)),"id");
 ```
 
-
+**Exists**
+```php
+$sql->exists("table",array("where" => "equals"));
+```
 
 Full documentation you can find [**here**](https://github.com/thomaskolmans/SimpelSQL/blob/master/docs/README.md)
 
