@@ -15,14 +15,13 @@ You can also download the library and install it manually. Download button will 
 Examples of SQL queries, simply in PHP. 
 
 **Create instance**
+Create your SimpleSQL instance, this will be used in the examples below. 
 ```php
 <?php
     use lib\SimpleSQL;
     $sql = new SimpleSQL; 
 ?>
 ```
-This is the variable used for the other functions
-
 **Select**
 
 ```php
@@ -44,6 +43,7 @@ $sql->insert("table",array("value1","value2","value3"));
 ```php
 $sql->create("table",array("id int auto_increment",name varchar(255)),"id");
 ```
+
 
 
 Full documentation you can find [**here**](https://github.com/thomaskolmans/SimpelSQL/blob/master/docs/README.md)
