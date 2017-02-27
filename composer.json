@@ -1,9 +1,9 @@
 {
-    "name":              "nytrix/simpelsql",
+    "name":              "nytrix/simpleSQL",
     "description":       "A php library that makes SQL simpel",
     "type":              "library",
     "license":           "MIT",
-    "homepage":          "https://github.com/thomaskolmans/SimpelSQL",
+    "homepage":          "https://github.com/thomaskolmans/SimpleSQL",
     "keywords":          [
         "SimpelSQL",
         "constructor"
@@ -11,8 +11,8 @@
     "authors": [
         {
             "name":     "Thomas Kolmans",
-            "email":    "contact@thomaskolmans.nl",
-            "homepage": "http://ocramius.github.com/"
+            "email":    "thomas@kolmans.com",
+            "homepage": "http://thomaskolmans.nl/"
         }
     ],
     "require": {
