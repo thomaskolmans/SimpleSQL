@@ -159,7 +159,8 @@ class SQL{
         foreach($values as $key => $value){
             $valuestring .= $key." ".$value.",";
         }
-        $valuestring .= "primary key (".$primarykey.")";
+        $valuestring .= "PRIMARY KEY(".$primarykey.")";
+        printf("CREATE TABLE ".$table." (".$valuestring.") ");
         $query = self::getInstance()->connection->prepare("CREATE TABLE ".$table." (".$valuestring.") ");
         $query->execute();
     }
@@ -205,7 +206,11 @@ class SQL{
         }
     }
 
-    public static function index(){
+    public static function create_index(){
+        $instance = self::getInstance();
+    }
+
+    public static function create_unique_index(){
         $instance = self::getInstance();
     }
 
