@@ -11,6 +11,14 @@ composer require nytrix/simplesql
 ```
 You can also download the library and install it manually. Download button will be added when the first official release is there.
 
+# Features
+
+- Common SQL queries in easy functions with understandable paramters. 
+- SQL query builder, so you can make any query with just PHP functions
+- Database backup that you can pass it on in other connections
+- Multi-driver possibilities
+- Mutliple connections available, and easy to communicate between those. 
+
 # Usage
 _Examples of SQL queries, simply in PHP._
 
