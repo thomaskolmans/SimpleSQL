@@ -1,4 +1,5 @@
 <?php
+    DEFINE('ROOT',dirname(__FILE__));
     if(session_id() == '') {
         session_start();
     }

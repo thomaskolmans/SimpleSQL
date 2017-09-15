@@ -1,7 +1,7 @@
 <?php
 namespace lib\Database;
 
-use lib\SimpelSQL;
+use lib\SimpleSQl;
 use lib\Database\DatabaseGranualty;
 
 class Database{
@@ -10,7 +10,7 @@ class Database{
     private $databases = [];
 
     public function __construct(){
-        $this->sql = new SimpelSQL("primary");
+        $this->sql = new SimpleSQl("primary");
         if(func_get_args() !== null){
             foreach(func_get_args() as $database){
                 array_push($this->databases,$database);

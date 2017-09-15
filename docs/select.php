@@ -1,6 +1,6 @@
 <?php
-// load the autoloader and use SimpelSQL, this is all you need to acces everything.
-use lib\SimpelSQL;
+// load the autoloader and use SimpleSQl, this is all you need to acces everything.
+use lib\SimpleSQl;
 require_once("../autoloader.php");
 
 /**

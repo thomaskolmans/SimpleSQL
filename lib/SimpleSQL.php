@@ -1,5 +1,4 @@
 <?php
-
 namespace lib;
 
 use lib\Database\Query;
@@ -8,7 +7,7 @@ use lib\Database\SQL;
 use lib\Database\Database;
 use lib\Database\RawQuery;
 
-class SimpleSQL extends SQL{
+class SimpleSQl extends SQL{
 
     private $connetion;
 
@@ -23,14 +22,21 @@ class SimpleSQL extends SQL{
         }
         parent::__construct($con,$this->connection);
     }
-    
+    public function close(){
+        return $this->getConnection()->close();
+    }
+    public function open(){
+        return $this->getConnection()->open();
+    }
+    public function check(){
+        return $this->getConnection()->isOpen();
+    }
     public function query(){
         if(count(func_get_args()) > 0 ){
             return new RawQuery(func_get_args());
         }
         return new Query($this->connection);
     }
-
     public static function getConfig($item,$key = false){
         $config = include("config.php");
         foreach($config as $keys => $value){
@@ -54,10 +60,16 @@ class SimpleSQL extends SQL{
             }
         }
     }
-    
     public function backup(){
         $database = new Database;
         return $database->backup(self::$data);
+    }
+    public function setConnection($connection){
+        $this->connection = $connection;
+        return $this;
+    }
+    public function getConnection(){
+        $this->connection;
     }
 }
 
