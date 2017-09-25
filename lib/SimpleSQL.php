@@ -1,11 +1,11 @@
 <?php
 namespace lib;
 
-use lib\Database\Query;
-use lib\Database\Connection;
-use lib\Database\SQL;
 use lib\Database\Database;
-use lib\Database\RawQuery;
+use lib\Database\Connection;
+use lib\SQL\Query;
+use lib\SQL\SQL;
+use lib\SQL\RawQuery;
 
 class SimpleSQl extends SQL{
 

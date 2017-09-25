@@ -1,5 +1,5 @@
 <?php
-namespace lib\Database;
+namespace lib\SQL;
 
 use lib\Exception\InvalidInputException;
 use lib\Database\Connection;

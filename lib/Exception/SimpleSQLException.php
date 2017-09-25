@@ -5,7 +5,7 @@ namespace lib\Exception;
 use \Exception;
 use lib\Exception\IException;
 
-abstract class SimpleSQlException extends Exception implements IException{
+abstract class SimpleSQLException extends Exception implements IException{
 
     protected $message = 'Unknown exception';  
     private   $string;                            

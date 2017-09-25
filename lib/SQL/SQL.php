@@ -1,6 +1,5 @@
 <?php
-
-namespace lib\Database;
+namespace lib\SQL;
 
 use lib\SimpleSQL;
 use lib\Database\Connection;
@@ -57,9 +56,9 @@ class SQL{
             $size = sizeof($whereequals);
             for($i = 0; $i < $size; $i++){             
                 if($i == 0){
-                    $wherestring .= " WHERE ".array_keys($whereequals)[$i]."=:".array_keys($whereequals)[$i];
+                    $wherestring .= " WHERE `".array_keys($whereequals)[$i]."`=:".array_keys($whereequals)[$i];
                 }else{
-                    $wherestring .= " AND ".array_keys($whereequals)[$i]."=:".array_keys($whereequals)[$i];
+                    $wherestring .= " AND `".array_keys($whereequals)[$i]."`=:".array_keys($whereequals)[$i];
                 }
             }
             return $wherestring;
@@ -86,7 +85,7 @@ class SQL{
         }else{
             $querycolumn = "`".$column ."`";
         }
-        $query = $sql->connection->prepare("SELECT ".$querycolumn." FROM ".$table."".$sql->where($whereequals));
+        $query = $sql->connection->prepare("SELECT `".$querycolumn."` FROM ".$table."".$sql->where($whereequals));
         $sql->bind($query,$whereequals)->execute();
         $fetch  = $query->fetchAll();
         if(!empty($fetch)){
@@ -115,14 +114,14 @@ class SQL{
             $columnnumber = 0;
             foreach($column as $col){
                 $key    = $this->create_key();
-                $squery  .= " SET ".$col."=:".$key;
+                $squery  .= " SET `".$col."`=:".$key;
                 $columnnumber++;
             }
             $squery .= $sql->where($whereequals);
             $query = $sql->prepare($squery);
         }else{
             $values[":value"] = $to;
-            $query = $sql->prepare("UPDATE ".$table." SET ".$column."=:value".$sql->where($whereequals));
+            $query = $sql->prepare("UPDATE `".$table."` SET `".$column."`=:value".$sql->where($whereequals));
         }
         foreach(array_keys($values) as $columnkey){
             $query->bindParam($columnkey,$values[$columnkey]);  
@@ -137,14 +136,14 @@ class SQL{
             $whereequals = array_values($whereequals);
         }
 
-        $query = self::getInstance()->connection->prepare("DELETE FROM ".$table."".$sql->where($whereequals));
+        $query = self::getInstance()->connection->prepare("DELETE FROM `".$table."` ".$sql->where($whereequals));
 
         $sql->bind($query,$whereequals)->execute();
     }
 
     public static function drop($table){
         if(SimpleSQl::getSettings("table_drop")){
-            $query = "DROP TABLE :table";
+            $query = "DROP TABLE `:table`";
             $query = self::getInstance()->connection->prepare($query);
             $query->bindParam(":table",$table);
             $query->execute();
@@ -169,7 +168,6 @@ class SQL{
     }
 
     public static function insert($table,$values){
-
         if(func_get_args() > 2){
             $values = func_get_args();
             unset($values[0]);
