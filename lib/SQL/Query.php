@@ -53,7 +53,7 @@ class Query{
         $this->query .= ' SET ' . (func_num_args() == 0 ? '*' : '`' . implode("`, `", func_get_args()) . '`');
     }
     public function insert($table,...$values){
-        $this->query .= 'INSERT INTO '.$table.' VALUES('.implode("`,`",$values. '`').')');
+        $this->query .= 'INSERT INTO `'.$table.'` VALUES('.implode("`,`",$values. '`').')';
         return $this;
     }
     public function create($table,$values,$primarykey = null){
@@ -61,14 +61,14 @@ class Query{
         $valuestring = "";
         $primary = false;
         foreach($values as $key => $value){
-            $valuestring .= $key." ".$value.",";
+            $valuestring .= "`".$key."` ".$value.",";
             if(strpos(strtolower($value), 'primary key' ) !== false )
-                $primary = true
+                $primary = true;
         }
         if(!$primary)
             $valuestring .= "PRIMARY KEY(".$primarykey.")";
 
-        $this->query .= "CREATE TABLE ".$table." (".$valuestring.") ";
+        $this->query .= "CREATE TABLE `".$table."` (".$valuestring.") ";
         return $this;
     }
     public function createFromTable($newtablename,$columns,$table,$whereequals){
@@ -82,7 +82,7 @@ class Query{
          return $this;
     }
     public function from(){
-        $this->query .=' FROM '.implode(",",func_get_args()); 
+        $this->query .=' FROM `'.implode("`,`",func_get_args()). '`'; 
         return $this;
     }
     public function where(){
@@ -93,18 +93,18 @@ class Query{
                     if(count($args[0]) > 1){
                         throw new InvalidInputException("Array can only contain 1 key and value.");
                     }
-                    $column = array_keys($args(0))[0];
+                    $column = array_keys($args[0])[0];
                     $value  = func_get_arg(0)[$column]; 
                     $key = $this->create_key();
                     $this->where[$key] = $value;
-                    $this->query .= " WHERE ".$column."=:".$key;
+                    $this->query .= " WHERE `".$column."`=:".$key;
                 }
             }elseif(count($args) == 2){
                 $column = func_get_arg(0);
                 $value = func_get_arg(1);
                 $key = $this->create_key();
                 $this->where[$key] = $value;
-                $this->query .= " WHERE ".$column."=:".$key;
+                $this->query .= " WHERE `".$column."`=:".$key;
             }
         }else{
             throw new InvalidInputException("Invalid input, please check the syntax");
@@ -172,14 +172,14 @@ class Query{
                     $value  = func_get_arg(0)[$column]; 
                     $key = $this->create_key();
                     $this->and[$key] = $value;
-                    $this->query .= " AND ".$column."=:".$key;
+                    $this->query .= " AND `".$column."`=:".$key;
                 }
             }elseif(count($args) == 2){
                 $column = func_get_arg(0);
                 $value = func_get_arg(1);
                 $key = $this->create_key();
                 $this->and[$key] = $value;
-                $this->query .= " AND ".$column."=:".$key;
+                $this->query .= " AND `".$column."`=:".$key;
             }
         }else{
             throw new InvalidInputException("Invalid input, please check the syntax");
@@ -197,7 +197,7 @@ class Query{
                     $value  = func_get_arg(0)[$column]; 
                     $key = $this->create_key();
                     $this->and[$key] = $value;
-                    $this->query .= " OR ".$column."=:".$key;
+                    $this->query .= " OR `".$column."`=:".$key;
                 }
             }
             if(count($args) > 2){
@@ -205,7 +205,7 @@ class Query{
                 $value = func_get_arg(1);
                 $key = $this->create_key();
                 $this->and[$key] = $value;
-                $this->query .= " OR ".$column."=:".$key;
+                $this->query .= " OR `".$column."`=:".$key;
             }
         return $this;
     }
@@ -223,11 +223,24 @@ class Query{
         return $this;
     }
     public function show(){
-        $this->query .= ("SHOW ".implode("`, `", func_get_args()) . '`');
+        $this->query .= ("SHOW ".implode(", ", func_get_args()) . '`');
         return $this;
     }
     public function orderBy($columns){
-        $this->query = ("ORDER BY".implode("`, `", array_keys($columns)). '`');
+        $this->query .= " ORDER BY  `".implode("`, `",array_values(func_get_args()))."`";
+        return $this;
+    }
+    public function desc(){
+        $this->query .= " DESC ";
+        return $this;
+    }
+    public function asc(){
+        $this->query .= " ASC ";
+        return $this;
+    }
+    public function limit($amount){
+        $this->where["limit"] = $amount;
+        $this->query .= " LIMIT :limit";
         return $this;
     }
     public function execute($destroy = true){
@@ -249,24 +262,7 @@ class Query{
         return $this->query;
     }
     public function getResults($s){
-        $fetch = $s->fetchAll();
-        $output = [];
-        foreach($fetch as $result){
-            $result = array_filter($result,function($var){
-                return !is_int($var);
-            },ARRAY_FILTER_USE_KEY);
-            array_push($output,$result);
-        }
-        if(count($output) == 1){
-            if(count($output[0]) == 1){
-                foreach($output[0]  as $res){
-                    return $res;
-                }
-            }else{
-                return $output[0];
-            }
-        }
-        return $output;
+        return $s->fetchAll();
     }
     private function clear_cache(){
         $this->like    = array();

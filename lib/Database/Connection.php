@@ -29,6 +29,7 @@ class Connection{
         try{
             $this->connection = new PDO("mysql:host=".$this->host.";dbname=".$this->dbname."",$this->username,$this->password);
             if(SimpleSQl::getSettings("PDO_errors")){
+                $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false );
                 $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
             }
         }catch(Exception $e){

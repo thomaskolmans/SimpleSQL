@@ -22,6 +22,7 @@ class SimpleSQl extends SQL{
         }
         parent::__construct($con,$this->connection);
     }
+    
     public function close(){
         return $this->getConnection()->close();
     }
@@ -37,8 +38,9 @@ class SimpleSQl extends SQL{
         }
         return new Query($this->connection);
     }
+    
     public static function getConfig($item,$key = false){
-        $config = include("config.php");
+        $config = include(__DIR__."/../config.php");
         foreach($config as $keys => $value){
             if($keys == $item){
                 if($key){
@@ -50,7 +52,7 @@ class SimpleSQl extends SQL{
     }
 
     public static function getSettings($item,$key = false){
-        $config = include("settings.php");
+        $config = include(__DIR__."/../settings.php");
         foreach($config as $keys => $value){
             if($keys == $item){
                 if($key){

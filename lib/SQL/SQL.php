@@ -30,7 +30,6 @@ class SQL{
             $this->connection = $c->connection;
         }
     }
-
     private static function getInstance($con = "primary"){
         if(!isset(self::$instance)){
             self::$instance = new SQL($con);
@@ -74,18 +73,21 @@ class SQL{
         }
         return $query;
     }
-
-    public static function select($column,$table,$whereequals = array(),$limit = null){
-        $sql = self::getInstance();
+    public function execute($query){
+        $query = $this->connection->prepare($query);
+        $query->execute();
+        return $query->fetchAll();
+    }
+    public static function select($column,$table,$whereequals = [],$limit = null){
         $sql = self::getInstance();
         if(is_array($column)){
             $querycolumn = implode(", ","`".$column."`");
         }elseif($column == "*"){
             $querycolumn = "*";
         }else{
-            $querycolumn = "`".$column ."`";
+            $querycolumn = " `".$column ."` ";
         }
-        $query = $sql->connection->prepare("SELECT `".$querycolumn."` FROM ".$table."".$sql->where($whereequals));
+        $query = $sql->connection->prepare("SELECT ".$querycolumn." FROM ".$table."".$sql->where($whereequals));
         $sql->bind($query,$whereequals)->execute();
         $fetch  = $query->fetchAll();
         if(!empty($fetch)){
@@ -108,6 +110,7 @@ class SQL{
 
     public static function update($column,$table,$whereequals,$to){
         $sql = self::getInstance()->connection;
+        $s = self::getInstance();
         $values = array();
         if(is_array($column)){
             $squery = "UPDATE ".$table." SET";
@@ -117,27 +120,26 @@ class SQL{
                 $squery  .= " SET `".$col."`=:".$key;
                 $columnnumber++;
             }
-            $squery .= $sql->where($whereequals);
-            $query = $sql->prepare($squery);
+            $squery .= $s->where($whereequals);
+            $query = $s->connection->prepare($squery);
         }else{
             $values[":value"] = $to;
-            $query = $sql->prepare("UPDATE `".$table."` SET `".$column."`=:value".$sql->where($whereequals));
+            $query = $s->connection->prepare("UPDATE `".$table."` SET `".$column."`=:value".$s->where($whereequals));
         }
         foreach(array_keys($values) as $columnkey){
             $query->bindParam($columnkey,$values[$columnkey]);  
         }
-        $sql->bind($query,$whereequals)->execute();
+        $s->bind($query,$whereequals)->execute();
     }
 
     public static function delete($table,$whereequals){
-        if(func_get_args() > 2){
+        if(count(func_get_args()) > 2){
             $whereequals = func_get_args();
             unset($whereequals[0]);
-            $whereequals = array_values($whereequals);
+            $whereequals = array_values($whereequals)[0];
         }
-
-        $query = self::getInstance()->connection->prepare("DELETE FROM `".$table."` ".$sql->where($whereequals));
-
+        $sql = self::getInstance();
+        $query = $sql->connection->prepare("DELETE FROM `".$table."` ".$sql->where($whereequals));
         $sql->bind($query,$whereequals)->execute();
     }
 
@@ -160,7 +162,7 @@ class SQL{
         $valuestring = "";
         $size = sizeof($values);
         foreach($values as $key => $value){
-            $valuestring .= $key." ".$value.",";
+            $valuestring .= "`".$key."` ".$value.",";
         }
         $valuestring .= "PRIMARY KEY(".$primarykey.")";
         $query = self::getInstance()->connection->prepare("CREATE TABLE ".$table." (".$valuestring.") ");
@@ -168,25 +170,26 @@ class SQL{
     }
 
     public static function insert($table,$values){
-        if(func_get_args() > 2){
+        if(count(func_get_args()) > 2){
             $values = func_get_args();
-            unset($values[0]);
+            unset($values);
             $values = array_values($values);
         }
         $stringvalues = "";
-        for($i = 0; $i < sizeof($values[0]); $i++){
-            if($i <  sizeof($values[0]) - 1){
+        for($i = 0; $i < sizeof($values); $i++){
+            if($i <  sizeof($values) - 1){
                 $stringvalues .= ":".$i.",";
             }else{
                 $stringvalues .= ":".$i;
             }
         }
         $query = self::getInstance()->connection->prepare("INSERT INTO ".$table." VALUES(".$stringvalues.")");
-        for($i = 0; $i < sizeof($values[0]); $i++){
-            $query->bindParam(":".$i,$values[0][$i]);
+        for($i = 0; $i < sizeof($values); $i++){
+            $query->bindParam(":".$i,$values[$i]);
         }
         $query->execute(); 
     }
+    
     public static function exists($table,$whereequals){
         $sql = self::getInstance()->connection;
         if(count($whereequals) > 0){
