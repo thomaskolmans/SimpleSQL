@@ -1,9 +1,9 @@
 <?php
 
-namespace lib\Exception;
+namespace lib\exception;
 
 use \Exception;
-use lib\Exception\IException;
+use lib\exception\IException;
 
 abstract class SimpleSQLException extends Exception implements IException{
 

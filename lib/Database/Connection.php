@@ -3,7 +3,7 @@ namespace lib\Database;
 
 use \PDO;
 use lib\SimpleSQl;
-use lib\Exception\InvalidInputException;
+use lib\exception\InvalidInputException;
 
 class Connection{
 

@@ -1,8 +1,8 @@
 <?php
-namespace lib\Database;
+namespace lib\database;
 
 use lib\SimpleSQl;
-use lib\Database\DatabaseGranualty;
+use lib\database\DatabaseGranualty;
 
 class Database{
 
@@ -34,6 +34,10 @@ class Database{
         }
     }
 
+    public function migrate(){
+
+    }
+    
     public function create_backup_file($data,$dir = "",$name = "backup"){
         return file_put_contents($dir."/".$name.".sql", $data);
     }

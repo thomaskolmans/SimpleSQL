@@ -1,11 +1,11 @@
 <?php
-namespace lib\SQL;
+namespace lib\sql;
 
 use lib\SimpleSQL;
-use lib\Database\Connection;
-use lib\Exception\InvalidInputException;
+use lib\database\Connection;
+use lib\exception\InvalidInputException;
 
-class SQL{
+class Simple{
 
     private $config;
     private $settings;
@@ -30,12 +30,14 @@ class SQL{
             $this->connection = $c->connection;
         }
     }
+
     private static function getInstance($con = "primary"){
         if(!isset(self::$instance)){
             self::$instance = new SQL($con);
         }
         return self::$instance;
     }
+
     public function get_calling_class() {
         $trace = debug_backtrace();
         $class = $trace[1]['class'];
@@ -46,9 +48,11 @@ class SQL{
         }
         return null;
     }
+
     public function getConnection(){
         return $this->connection;
     }
+
     public function where($whereequals){
         $wherestring = "";
         if(is_array($whereequals)){
@@ -73,11 +77,13 @@ class SQL{
         }
         return $query;
     }
+
     public function execute($query){
         $query = $this->connection->prepare($query);
         $query->execute();
         return $query->fetchAll();
     }
+
     public static function select($column,$table,$whereequals = [],$limit = null){
         $sql = self::getInstance();
         if(is_array($column)){
@@ -153,11 +159,13 @@ class SQL{
             return false;
         }
     }
+
     public static function database($name){
         $sql = self::getInstance();
         $query = $sql->connection->prepare("CREATE DATABASE ".$name);
         $query->execute();
     }
+
     public static function create($table,array $values,$primarykey){
         $valuestring = "";
         $size = sizeof($values);
@@ -224,6 +232,7 @@ class SQL{
         self::getInstance()->bind($query,$whereequals)->execute();
         return $query->rowCount();
     }
+
     public static function show_tables($database = ""){
         $sql = self::getInstance()->connection;
         $query = $sql->prepare('show tables from nytrix');
@@ -231,6 +240,7 @@ class SQL{
         $fetch = $query->fetchAll();
         return $fetch;
     }
+
     public static function show_databases(){
         $sql = self::getInstance()->connection;
         $query = $sql->prepare("show database");
@@ -243,6 +253,7 @@ class SQL{
     public static function max(){
 
     }
+
     private function create_key(){
         return md5(microtime().rand());
     }
