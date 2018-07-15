@@ -1,6 +1,6 @@
 <?php
 
-namespace lib\Database;
+namespace lib\database;
 
 class DatabaseGranualty{
 
