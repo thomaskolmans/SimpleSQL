@@ -1,10 +1,10 @@
 <?php
 namespace lib\SQL;
 
-use lib\Exception\InvalidInputException;
-use lib\Database\Connection;
+use lib\exception\InvalidInputException;
+use lib\database\Connection;
 
-class Query{
+class SimpleQuery{
 
     public $instance;
     
@@ -277,7 +277,5 @@ class Query{
     private function create_key(){
         return md5(microtime().rand());
     }
-
 }
-
 ?>

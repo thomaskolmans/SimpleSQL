@@ -1,5 +1,5 @@
 <?php
-namespace lib\SQL;
+namespace lib\sql;
 
 class RawQuery{
     

@@ -1,5 +1,5 @@
 <?php
-namespace lib\Exception;
+namespace lib\exception;
 
 interface IException{
     public function getMessage();
