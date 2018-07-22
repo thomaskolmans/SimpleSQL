@@ -28,12 +28,14 @@ class Connection{
     public function open(){
         try{
             $this->connection = new PDO("mysql:host=".$this->host.";dbname=".$this->dbname."",$this->username,$this->password);
-            if(SimpleSQl::getSettings("PDO_errors")){
+            if(SimpleSQl::pdoErrors()){
                 $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false );
                 $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
             }
         }catch(Exception $e){
-            throw new ConnectionExcpetion("Unable to connect, check the values of your connection");
+            if(SimpleSQl::simpleSqlErrors()){
+                throw new ConnectionExcpetion("Unable to connect, database authentication failed.");
+            }
         }     
         return $this->connection;
     }
@@ -45,19 +47,15 @@ class Connection{
     public function is($state){
         switch($state){
             case "open":
-                if($this->connection != null){
-                    return true;
-                }
-                return false;
+                return $this->connection != null;
             break;
             case "closed":
-                if($this->connection == null){
-                    return true;
-                }  
-                return false;
+                return $this->connection == null;
             break;
             default:
-                new InvalidInputException($state);
+                if(SimpleSQl::simpleSqlErrors()){
+                    throw new InvalidInputException($state);
+                }
             break; 
         }
     }
