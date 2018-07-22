@@ -3,6 +3,7 @@ namespace lib;
 
 use lib\database\Database;
 use lib\database\Connection;
+use lib\database\Migration;
 use lib\sql\SimpleQuery;
 use lib\sql\Simple;
 use lib\sql\RawQuery;
@@ -21,6 +22,7 @@ class SimpleSQl extends Simple{
             $this->connection = $c->open();
         }
         parent::__construct($con,$this->connection);
+        $this->migration = new Migration($this);
     }
     
     public function close(){
@@ -62,6 +64,15 @@ class SimpleSQl extends Simple{
             }
         }
     }
+
+    public static function simpleSqlErrors(){
+        return SimpleSQl::getSettings("SimpleSQl_errors");
+    }
+
+    public static function pdoErrors(){
+        return SimpleSQl::getSettings("PDO_errors");
+    }
+
     public function backup(){
         $database = new Database;
         return $database->backup(self::$data);
