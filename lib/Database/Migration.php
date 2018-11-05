@@ -18,11 +18,10 @@ class Migration{
 
 	public function __construct(SimpleSQL $simplesql){
 		$this->simplesql = $simplesql;
-		$this->getMigrations();
 	}
 
 	public function findFiles(){
-		$migration_dir = __DIR__.'/../../migration';
+		$migration_dir = $this->simplesql->root.'/migration';
 		if (file_exists($migration_dir) && is_dir($migration_dir)) {
 			return scandir($migration_dir);
 		}else{
@@ -35,7 +34,7 @@ class Migration{
 		$this->getMigrations();
 		$files = $this->findFiles();
 		foreach($files as $file){
-			if(file_exists(__DIR__.'/../../migration/'.$file) && !is_dir($file) && $this->validFilename($file)){
+			if(file_exists($this->simplesql->root.'/migration/'.$file) && !is_dir($file) && $this->validFilename($file)){
 				if($this->lastMigration()["version"] < $this->version){
 					$this->insertMigration($this->version,$this->description,$this->type,$this->file,$this->executeMigration($file));
 				}
@@ -51,7 +50,9 @@ class Migration{
 	}
 
 	private function getMigrations(){
-		$this->migrations = $this->simplesql->select("*","simplesql_migration",[]);
+		if(!$this->simplesql->exists("simplesql_migration", [])){
+			$this->migrations = $this->simplesql->select("*","simplesql_migration",[]);
+		}
 	}
 
 	private function lastMigration(){
@@ -64,7 +65,7 @@ class Migration{
 	}
 
 	private function validFilename($filename){
-		$file = pathinfo(__DIR__.'/../../migration/'.$filename);
+		$file = pathinfo($this->simplesql->root.'/migration/'.$filename);
 		$this->type = strtoupper($file["extension"]);
 		$this->file = $file["filename"];
 		if($filename[0] === "V" && strpos($file["filename"], '__') !== false){
@@ -78,11 +79,10 @@ class Migration{
 		}
 		return false;
 	}
-	
 
 	private function executeMigration($file){
 		try{
-			$sql = file_get_contents(__DIR__.'/../../migration/'.$file);
+			$sql = file_get_contents($this->simplesql->root.'/migration/'.$file);
 			$statements = explode(";", $sql);
 			foreach($statements as $statement){
 				if(!empty($statement)){
