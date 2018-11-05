@@ -2,8 +2,11 @@
 namespace lib\sql;
 
 use lib\SimpleSQL;
+use lib\sql\SimpleQuery;
 use lib\database\Connection;
 use lib\exception\InvalidInputException;
+use lib\exception\PermissionException;
+use lib\exception\SimpleSQLException;
 
 class Simple{
 
@@ -11,9 +14,9 @@ class Simple{
     private $settings;
 
     public $connection;
-    static $instance;
+    public $migration;
 
-    public $base;
+    static $instance;
 
     public function __construct($con = "primary"){
         $parent = $this->get_calling_class();
@@ -33,7 +36,7 @@ class Simple{
 
     private static function getInstance($con = "primary"){
         if(!isset(self::$instance)){
-            self::$instance = new SQL($con);
+            self::$instance = new Simple($con);
         }
         return self::$instance;
     }
@@ -109,9 +112,8 @@ class Simple{
                 return $fetch[0][0];
             }
             return $output;
-        }else{
-            return null;
         }
+        return null;
     }
 
     public static function update($column,$table,$whereequals,$to){
@@ -151,12 +153,12 @@ class Simple{
 
     public static function drop($table){
         if(SimpleSQl::getSettings("table_drop")){
-            $query = "DROP TABLE `:table`";
-            $query = self::getInstance()->connection->prepare($query);
-            $query->bindParam(":table",$table);
+            $query = self::getInstance()->connection->prepare("DROP TABLE $table");
             $query->execute();
         }else{
-            return false;
+            if(SimpleSQL::simpleSqlErrors()){
+                throw new PermissionException("You don't have the permission to drop tables.");
+            }
         }
     }
 
@@ -203,19 +205,11 @@ class Simple{
         if(count($whereequals) > 0){
             $query = $sql->prepare("SELECT * FROM ".$table."".self::getInstance()->where($whereequals));
             self::getInstance()->bind($query,$whereequals)->execute();
-            if($query->rowCount() > 0){
-                return true;
-            }else{
-                return false;
-            }
+            return $query->rowCount() > 0;
         }else{
             $query = $sql->prepare("SHOW TABLES LIKE '".$table."'");          
             $query->execute();
-            if($query->rowCount() > 0){
-                return true;
-            }else{
-                return false;
-            }
+            return $query->rowCount() > 0;
         }
     }
 
@@ -234,11 +228,20 @@ class Simple{
     }
 
     public static function show_tables($database = ""){
-        $sql = self::getInstance()->connection;
-        $query = $sql->prepare('show tables from nytrix');
-        $query->execute();
-        $fetch = $query->fetchAll();
-        return $fetch;
+        if($database == ""){
+            $sql = self::getInstance()->connection;
+            $query = $sql->prepare('SHOW TABLES');
+            $query->execute();
+            $fetch = $query->fetchAll();
+            return $fetch;
+        }else{
+            $sql = self::getInstance()->connection;
+            $query = $sql->prepare('SHOW TABLES FROM ?');
+            $query->bind(1, $database);
+            $query->execute();
+            $fetch = $query->fetchAll();
+            return $fetch;
+        }
     }
 
     public static function show_databases(){

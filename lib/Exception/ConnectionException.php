@@ -1,9 +1,9 @@
 <?php
-namespace lib\Exception;
+namespace lib\exception;
 
-use lib\Excpetion\CustomException;
+use lib\Excpetion\SimpleSQLException;
 
-class ConnectionException extends CustomException{
+class ConnectionException extends SimpleSQLException{
     
 }
 ?>

@@ -238,9 +238,10 @@ class SimpleQuery{
         $this->query .= " ASC ";
         return $this;
     }
-    public function limit($amount){
-        $this->where["limit"] = $amount;
-        $this->query .= " LIMIT :limit";
+    public function limit($from, $to){
+        $this->where["from"] = $from;
+        $this->where["to"] = $to;
+        $this->query .= " LIMIT :from,:to";
         return $this;
     }
     public function execute($destroy = true){

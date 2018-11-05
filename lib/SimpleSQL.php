@@ -3,24 +3,28 @@ namespace lib;
 
 use lib\database\Database;
 use lib\database\Connection;
+use lib\database\Migration;
 use lib\sql\SimpleQuery;
 use lib\sql\Simple;
 use lib\sql\RawQuery;
 
 class SimpleSQl extends Simple{
 
-    private $connetion;
+    private $connection;
+    public $root; 
 
     public static $data;
 
     public function __construct($con = "primary"){
         $data = self::getConfig($con);
         self::$data = $data; 
+        $this->root = getcwd();
         $c = new Connection($data["host"],$data["databasename"],$data["username"],$data["password"]);
         if($c->isClosed()){
             $this->connection = $c->open();
         }
         parent::__construct($con,$this->connection);
+        $this->migration = new Migration($this);
     }
     
     public function close(){
@@ -40,7 +44,7 @@ class SimpleSQl extends Simple{
     }
     
     public static function getConfig($item,$key = false){
-        $config = include(__DIR__."/../config.php");
+        $config = include($this->root."/config.php");
         foreach($config as $keys => $value){
             if($keys == $item){
                 if($key){
@@ -52,7 +56,7 @@ class SimpleSQl extends Simple{
     }
 
     public static function getSettings($item,$key = false){
-        $config = include(__DIR__."/../settings.php");
+        $config = include($this->root."/settings.php");
         foreach($config as $keys => $value){
             if($keys == $item){
                 if($key){
@@ -62,6 +66,15 @@ class SimpleSQl extends Simple{
             }
         }
     }
+
+    public static function simpleSqlErrors(){
+        return SimpleSQl::getSettings("SimpleSQl_errors");
+    }
+
+    public static function pdoErrors(){
+        return SimpleSQl::getSettings("PDO_errors");
+    }
+
     public function backup(){
         $database = new Database;
         return $database->backup(self::$data);
