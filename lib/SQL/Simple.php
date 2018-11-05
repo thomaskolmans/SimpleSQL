@@ -8,7 +8,7 @@ use lib\exception\InvalidInputException;
 use lib\exception\PermissionException;
 use lib\exception\SimpleSQLException;
 
-class Simple{
+class Simple {
 
     private $config;
     private $settings;

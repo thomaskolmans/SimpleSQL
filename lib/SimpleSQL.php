@@ -10,7 +10,7 @@ use lib\sql\RawQuery;
 
 class SimpleSQl extends Simple{
 
-    private $connection;
+    public $connection;
     public $root; 
 
     public static $data;
