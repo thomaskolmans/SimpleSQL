@@ -38,6 +38,7 @@ class SimpleQuery{
          }
          return $this;
     }
+
     public function delete(){
         $this->query .= 'DELETE ' . (func_num_args() == 0 ? '*' : '`' . implode("`, `", func_get_args()) . '`');
          foreach(func_get_args() as $column){
@@ -45,17 +46,21 @@ class SimpleQuery{
          }
          return $this;
     }
+
     public function update($table){
         $this->query .= 'UPDATE '.$table.'';
         return $this;
     }
+
     public function to(){
         $this->query .= ' SET ' . (func_num_args() == 0 ? '*' : '`' . implode("`, `", func_get_args()) . '`');
     }
+    
     public function insert($table,...$values){
         $this->query .= 'INSERT INTO `'.$table.'` VALUES('.implode("`,`",$values. '`').')';
         return $this;
     }
+
     public function create($table,$values,$primarykey = null){
         $size = sizeof($values);
         $valuestring = "";
@@ -71,9 +76,11 @@ class SimpleQuery{
         $this->query .= "CREATE TABLE `".$table."` (".$valuestring.") ";
         return $this;
     }
+
     public function createFromTable($newtablename,$columns,$table,$whereequals){
 
     }
+
     public function select_desctinct(){
          $this->query .= 'SELECT DISTINCT ' . (func_num_args() == 0 ? '*' : '`' . implode("`, `", func_get_args()) . '`');
          foreach(func_get_args() as $column){
@@ -81,10 +88,12 @@ class SimpleQuery{
          }
          return $this;
     }
+
     public function from(){
         $this->query .=' FROM `'.implode("`,`",func_get_args()). '`'; 
         return $this;
     }
+
     public function where(){
         $args = func_get_args();
         if(count($args) < 3){
@@ -106,60 +115,19 @@ class SimpleQuery{
                 $this->where[$key] = $value;
                 $this->query .= " WHERE `".$column."`=:".$key;
             }
-        }else{
+        } else if(count($args) == 3){
+            $column = func_get_arg(0);
+            $comperator = func_get_arg(1);
+            $value = func_get_arg(2);
+            $key = $this->create_key();
+            $this->where[$key] = $value;
+            $this->query .= " WHERE `".$column."`".$comperator.":".$key;   
+        } else {
             throw new InvalidInputException("Invalid input, please check the syntax");
         }
         return $this;
     }
-    public function join(){
-        $args = $this->join_arguments(func_get_args());
-        $this->query .= " INNER JOIN $args[0] ON ".$args[1]."=".$args[2];
-        return $this;
-    }
-    private function join_arguments(){
-        $args = func_get_args()[0];
-        $id1 = "";
-        $id2 = "";
-        $table = "";
-        if(count($args) < 2){
-            throw new InvalidInputException("join functions need between 2 or 4 arguments");
-        }
-        if(count($args) == 2){
-            if(is_array($args[0]) && is_array($args[1])){
-                $arr2 = $args[1];
-                $arr1 = $args[0];
-                $table = $arr1[0];
-                $id1 = $arr2[0].".".$arr2[1];
-                $id2 = $arr1[0].".".$arr1[1];
-            }else{
-                throw new InvalidInputException("the 2 arguments need to be arrays");
-            }
-        }
-        if(count($args) == 3){
-            $table = $args[0];
-            $id1 = $args[1];
-            $id2 = $args[2];
-        }
-        return array($table,$id1,$id2);
-    }
-    public function inner_join(){
-        return $this->join(func_get_args());
-    }
-    public function left_join(){
-        $args = $this->join_arguments(func_get_args());
-        $this->query .= " LEFT JOIN $args[0] ON ".$args[1]."=".$args[2];
-        return $this;
-    }
-    public function right_join(){
-        $args = $this->join_arguments(func_get_args());
-        $this->query .= " RIGHT JOIN $args[0] ON ".$args[1]."=".$args[2];
-        return $this;
-    }
-    public function full_join(){
-        $args = $this->join_arguments(func_get_args());
-        $this->query .= " FULL OUTER JOIN $args[0] ON ".$args[1]."=".$args[2];
-        return $this;
-    }
+    
     public function and(){
         $args = func_get_args();
         if(count($args) < 3){
@@ -181,13 +149,22 @@ class SimpleQuery{
                 $this->and[$key] = $value;
                 $this->query .= " AND `".$column."`=:".$key;
             }
-        }else{
+        } else if(count($args) == 3){
+            $column = func_get_arg(0);
+            $comperator = func_get_arg(1);
+            $value = func_get_arg(2);
+            $key = $this->create_key();
+            $this->where[$key] = $value;
+            $this->query .= " AND `".$column."`".$comperator.":".$key;   
+        } else {
             throw new InvalidInputException("Invalid input, please check the syntax");
         }
         return $this;
     }
+
     public function or(){
         $args = func_get_args();
+        if(count($args) < 3){
             if(count($args) == 1){
                 if(is_array($args[0])){
                     if(count($args[0]) > 1){
@@ -197,22 +174,90 @@ class SimpleQuery{
                     $value  = func_get_arg(0)[$column]; 
                     $key = $this->create_key();
                     $this->and[$key] = $value;
-                    $this->query .= " OR `".$column."`=:".$key;
+                    $this->query .= " AND `".$column."`=:".$key;
                 }
-            }
-            if(count($args) > 2){
+            }elseif(count($args) == 2){
                 $column = func_get_arg(0);
                 $value = func_get_arg(1);
                 $key = $this->create_key();
                 $this->and[$key] = $value;
-                $this->query .= " OR `".$column."`=:".$key;
+                $this->query .= " AND `".$column."`=:".$key;
             }
+        } else if(count($args) == 3){
+            $column = func_get_arg(0);
+            $comperator = func_get_arg(1);
+            $value = func_get_arg(2);
+            $key = $this->create_key();
+            $this->where[$key] = $value;
+            $this->query .= " AND `".$column."`".$comperator.":".$key;   
+        } else {
+            throw new InvalidInputException("Invalid input, please check the syntax");
+        }
         return $this;
     }
+
+    public function join(){
+        $args = $this->join_arguments(func_get_args());
+        $this->query .= " INNER JOIN $args[0] ON ".$args[1]."=".$args[2];
+        return $this;
+    }
+
+    private function join_arguments(){
+        $args = func_get_args()[0];
+        $id1 = "";
+        $id2 = "";
+        $table = "";
+        
+        if(count($args) == 2){
+            if(is_array($args[0]) && is_array($args[1])){
+                $arr2 = $args[1];
+                $arr1 = $args[0];
+                $table = $arr1[0];
+                $id1 = $arr2[0].".".$arr2[1];
+                $id2 = $arr1[0].".".$arr1[1];
+            }else{
+                throw new InvalidInputException("the 2 arguments need to be arrays");
+            }
+        }else if(count($args) == 3){
+            $table = $args[0];
+            $id1 = $args[1];
+            $id2 = $args[2];
+        } else {
+            throw new InvalidInputException("join functions need between 2 or 4 arguments");
+        }
+        return array($table,$id1,$id2);
+    }
+
+    public function inner_join(){
+        return $this->join(func_get_args());
+    }
+
+    public function left_join(){
+        $args = $this->join_arguments(func_get_args());
+        $this->query .= " LEFT JOIN $args[0] ON ".$args[1]."=".$args[2];
+        return $this;
+    }
+
+    public function right_join(){
+        $args = $this->join_arguments(func_get_args());
+        $this->query .= " RIGHT JOIN $args[0] ON ".$args[1]."=".$args[2];
+        return $this;
+    }
+
+    public function full_join(){
+        $args = $this->join_arguments(func_get_args());
+        $this->query .= " FULL OUTER JOIN $args[0] ON ".$args[1]."=".$args[2];
+        return $this;
+    }
+
     public function like(){
-        $this->query .= "";
+        $args = func_get_args()[0];
+        if(count($args) == 2){
+            $this->where(func_get_arg(0), " LIKE ", func_get_arg(1));
+        }
         return $this;
     }
+
     public function as(){
         $args = func_get_args();
         if(count($args) > 1){
@@ -222,28 +267,39 @@ class SimpleQuery{
         }
         return $this;
     }
+
     public function show(){
         $this->query .= ("SHOW ".implode(", ", func_get_args()) . '`');
         return $this;
     }
+
     public function orderBy($columns){
         $this->query .= " ORDER BY  `".implode("`, `",array_values(func_get_args()))."`";
         return $this;
     }
+
     public function desc(){
         $this->query .= " DESC ";
         return $this;
     }
+
     public function asc(){
         $this->query .= " ASC ";
         return $this;
     }
+
+    public function group_by(){
+        $this->query .= ("GROUP BY ".implode(", ", func_get_args()) . '`');
+        return $this;
+    }
+
     public function limit($from, $to){
         $this->where["from"] = $from;
         $this->where["to"] = $to;
         $this->query .= " LIMIT :from,:to";
         return $this;
     }
+
     public function execute($destroy = true){
         $s = $this->instance->prepare($this->query);
         if(count($this->where) > 0){
@@ -257,6 +313,7 @@ class SimpleQuery{
         }
         return $this->getResults($s);
     }
+
     public function destroy(){
         $this->clear_cache();
         $this->query = "";
@@ -265,6 +322,7 @@ class SimpleQuery{
     public function getResults($s){
         return $s->fetchAll();
     }
+
     private function clear_cache(){
         $this->like    = array();
         $this->from    = array();

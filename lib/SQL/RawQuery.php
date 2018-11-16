@@ -5,7 +5,7 @@ class RawQuery{
     
     public $query,$values;
 
-    public function __construct($query,$array...){
+    public function __construct($query, $array...){
         $this->values = $query;
         $this->query = array_shift($this->values);
         $this->decode();

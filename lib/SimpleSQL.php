@@ -11,14 +11,14 @@ use lib\sql\RawQuery;
 class SimpleSQl extends Simple{
 
     public $connection;
-    public $root; 
 
+    public static $root; 
     public static $data;
 
     public function __construct($con = "primary"){
         $data = self::getConfig($con);
         self::$data = $data; 
-        $this->root = getcwd();
+        self::$root = getcwd();
         $c = new Connection($data["host"],$data["databasename"],$data["username"],$data["password"]);
         if($c->isClosed()){
             $this->connection = $c->open();
@@ -44,7 +44,7 @@ class SimpleSQl extends Simple{
     }
     
     public static function getConfig($item,$key = false){
-        $config = include(__DIR__."/../config.php");
+        $config = include(SimpleSQL::$root."/config.php");
         foreach($config as $keys => $value){
             if($keys == $item){
                 if($key){
@@ -56,7 +56,7 @@ class SimpleSQl extends Simple{
     }
 
     public static function getSettings($item,$key = false){
-        $config = include(__DIR__."/../settings.php");
+        $config = include(SimpleSQL::$root."/settings.php");
         foreach($config as $keys => $value){
             if($keys == $item){
                 if($key){
