@@ -16,9 +16,9 @@ class SimpleSQl extends Simple{
     public static $data;
 
     public function __construct($con = "primary"){
+        self::$root = getcwd();
         $data = self::getConfig($con);
         self::$data = $data; 
-        self::$root = getcwd();
         $c = new Connection($data["host"],$data["databasename"],$data["username"],$data["password"]);
         if($c->isClosed()){
             $this->connection = $c->open();
