@@ -40,7 +40,7 @@ class SimpleSQl extends Simple{
         if(count(func_get_args()) > 0 ){
             return new RawQuery(func_get_args());
         }
-        return new Query($this->connection);
+        return new SimpleQuery($this->connection);
     }
     
     public static function getConfig($item,$key = false){
