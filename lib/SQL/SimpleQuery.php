@@ -136,7 +136,7 @@ class SimpleQuery{
                     if(count($args[0]) > 1){
                         throw new InvalidInputException("Array can only contain 1 key and value.");
                     }
-                    $column = array_keys($args(0))[0];
+                    $column = array_keys($args[0])[0];
                     $value  = func_get_arg(0)[$column]; 
                     $key = $this->create_key();
                     $this->and[$key] = $value;
@@ -154,7 +154,7 @@ class SimpleQuery{
             $comperator = func_get_arg(1);
             $value = func_get_arg(2);
             $key = $this->create_key();
-            $this->where[$key] = $value;
+            $this->and[$key] = $value;
             $this->query .= " AND `".$column."`".$comperator.":".$key;   
         } else {
             throw new InvalidInputException("Invalid input, please check the syntax");
@@ -170,26 +170,26 @@ class SimpleQuery{
                     if(count($args[0]) > 1){
                         throw new InvalidInputException("Array can only contain 1 key and value.");
                     }
-                    $column = array_keys($args(0))[0];
+                    $column = array_keys($args[0])[0];
                     $value  = func_get_arg(0)[$column]; 
                     $key = $this->create_key();
-                    $this->and[$key] = $value;
-                    $this->query .= " AND `".$column."`=:".$key;
+                    $this->or[$key] = $value;
+                    $this->query .= " OR `".$column."`=:".$key;
                 }
             }elseif(count($args) == 2){
                 $column = func_get_arg(0);
                 $value = func_get_arg(1);
                 $key = $this->create_key();
-                $this->and[$key] = $value;
-                $this->query .= " AND `".$column."`=:".$key;
+                $this->or[$key] = $value;
+                $this->query .= " OR `".$column."`=:".$key;
             }
         } else if(count($args) == 3){
             $column = func_get_arg(0);
             $comperator = func_get_arg(1);
             $value = func_get_arg(2);
             $key = $this->create_key();
-            $this->where[$key] = $value;
-            $this->query .= " AND `".$column."`".$comperator.":".$key;   
+            $this->or[$key] = $value;
+            $this->query .= " OR `".$column."`".$comperator.":".$key;   
         } else {
             throw new InvalidInputException("Invalid input, please check the syntax");
         }
