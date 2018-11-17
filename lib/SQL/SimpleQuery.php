@@ -307,6 +307,16 @@ class SimpleQuery{
                 $s->bindParam(":".$bindkey,$this->where[$bindkey]);
             }
         }
+        if(count($this->and) > 0){
+            foreach(array_keys($this->and) as $bindkey){
+                $s->bindParam(":".$bindkey,$this->and[$bindkey]);
+            }
+        }
+        if(count($this->or) > 0){
+            foreach(array_keys($this->or) as $bindkey){
+                $s->bindParam(":".$bindkey,$this->or[$bindkey]);
+            }
+        }
         $s->execute();
         if($destroy){
             $this->destroy();
