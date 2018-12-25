@@ -202,7 +202,7 @@ class Simple {
     
     public static function exists($table,$whereequals){
         $sql = self::getInstance()->connection;
-        if(count($whereequals) > 0){
+        if($whereequals != null && count($whereequals) > 0){
             $query = $sql->prepare("SELECT * FROM ".$table."".self::getInstance()->where($whereequals));
             self::getInstance()->bind($query,$whereequals)->execute();
             return $query->rowCount() > 0;
