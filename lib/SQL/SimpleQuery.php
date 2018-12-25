@@ -289,7 +289,7 @@ class SimpleQuery{
     }
 
     public function groupBy(){
-        $this->query .= ("GROUP BY `".implode("`, `", array_values(func_get_args())) . '`');
+        $this->query .= " GROUP BY  `".implode("`, `",array_values(func_get_args()))."`";
         return $this;
     }
 
