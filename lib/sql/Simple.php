@@ -90,11 +90,11 @@ class Simple {
     public static function select($column,$table,$whereequals = [],$limit = null){
         $sql = self::getInstance();
         if(is_array($column)){
-            $querycolumn = implode(", ","`".$column."`");
+            $querycolumn = implode(", ","".$column."");
         }elseif($column == "*"){
             $querycolumn = "*";
         }else{
-            $querycolumn = " `".$column ."` ";
+            $querycolumn = " ".$column ." ";
         }
         $query = $sql->connection->prepare("SELECT ".$querycolumn." FROM ".$table."".$sql->where($whereequals));
         $sql->bind($query,$whereequals)->execute();

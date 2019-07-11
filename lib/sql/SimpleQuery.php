@@ -28,11 +28,13 @@ class SimpleQuery{
             $this->instance = $c->connection;
         }
     }
+
     public function __clone(){
         $this->instance = clone $this->instance;
     }
+
     public function select(){
-         $this->query .= 'SELECT ' . (func_num_args() == 0 ? '*' : '`' . implode("`, `", func_get_args()) . '`');
+         $this->query .= 'SELECT ' . (func_num_args() == 0 ? '*' : '' . implode(", ", func_get_args()) . '');
          foreach(func_get_args() as $column){
             array_push($this->columns, $column);
          }
@@ -40,7 +42,7 @@ class SimpleQuery{
     }
 
     public function delete(){
-        $this->query .= 'DELETE ' . (func_num_args() == 0 ? '*' : '`' . implode("`, `", func_get_args()) . '`');
+        $this->query .= 'DELETE ' . (func_num_args() == 0 ? '*' : '' . implode(", ", func_get_args()) . '');
          foreach(func_get_args() as $column){
             array_push($this->columns, $column);
          }
@@ -52,7 +54,7 @@ class SimpleQuery{
         return $this;
     }
 
-    public function to(){
+    public function set(){
         $this->query .= ' SET ' . (func_num_args() == 0 ? '*' : '`' . implode("`, `", func_get_args()) . '`');
     }
     
@@ -75,10 +77,6 @@ class SimpleQuery{
 
         $this->query .= "CREATE TABLE `".$table."` (".$valuestring.") ";
         return $this;
-    }
-
-    public function createFromTable($newtablename,$columns,$table,$whereequals){
-
     }
 
     public function select_desctinct(){
@@ -196,6 +194,40 @@ class SimpleQuery{
         return $this;
     }
 
+    public function whereBetween() {
+        $args = func_get_args();
+        if(count($args) < 3){
+            throw new InvalidInputException("whereBetween need 3 arguments (column, value, value)");
+        } else if(count($args) == 3){
+            $column = func_get_arg(0);
+            $value1 = func_get_arg(1);
+            $value2 = func_get_arg(2);
+            $key1 = $this->create_key();
+            $key2 = $this->create_key();
+            $this->where[$key1] = $value1;
+            $this->where[$key2] = $value2;
+            $this->query .= " WHERE `".$column."` BETWEEN :".$key1." AND :".$key2;   
+        }
+        return $this;
+    }
+
+    public function whereNotBetween() {
+        $args = func_get_args();
+        if(count($args) < 3){
+            throw new InvalidInputException("whereBetween need 3 arguments (column, value, value)");
+        } else if(count($args) == 3){
+            $column = func_get_arg(0);
+            $value1 = func_get_arg(1);
+            $value2 = func_get_arg(2);
+            $key1 = $this->create_key();
+            $key2 = $this->create_key();
+            $this->where[$key1] = $value1;
+            $this->where[$key2] = $value2;
+            $this->query .= " WHERE `".$column."` BETWEEN :".$key1." AND :".$key2;   
+        }
+        return $this;
+    }
+
     public function join(){
         $args = $this->join_arguments(func_get_args());
         $this->query .= " INNER JOIN $args[0] ON ".$args[1]."=".$args[2];
@@ -290,6 +322,16 @@ class SimpleQuery{
 
     public function groupBy(){
         $this->query .= " GROUP BY  `".implode("`, `",array_values(func_get_args()))."`";
+        return $this;
+    }
+
+    public function innerStart() {
+        $this->query .= " ( ";
+        return $this;
+    }
+
+    public function innerEnd() {
+        $this->query .= " ( ";
         return $this;
     }
 
