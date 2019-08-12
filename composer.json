@@ -1,9 +1,9 @@
 {
-    "name":              "nytrix/SimpleSQl",
+    "name":              "nytrix/simplesql",
     "description":       "A php library that makes SQL simple",
     "type":              "library",
     "license":           "MIT",
-    "homepage":          "https://github.com/thomaskolmans/SimpleSQl",
+    "homepage":          "https://github.com/thomaskolmans/simplesql",
     "keywords":          [
         "SimpleSQl",
         "constructor"

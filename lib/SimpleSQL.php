@@ -8,7 +8,7 @@ use lib\sql\SimpleQuery;
 use lib\sql\Simple;
 use lib\sql\RawQuery;
 
-class SimpleSQl extends Simple{
+class SimpleSQL extends Simple{
 
     public $connection;
 
