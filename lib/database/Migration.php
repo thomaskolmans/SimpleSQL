@@ -41,7 +41,7 @@ class Migration{
                         $this->description,
                         $this->type,
                         $this->file,
-                        $this->type === "PHP" ? $this->executePhpMigration($file) : $this->executeSqlMigration($file)
+                        strtolower($this->type) === "php" ? $this->executePhpMigration($file) : $this->executeSqlMigration($file)
                     );
                 }
             }
