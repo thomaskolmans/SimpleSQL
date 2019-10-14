@@ -87,7 +87,7 @@ class Simple {
         return $query->fetchAll();
     }
 
-    public static function select($column,$table,$whereequals = [],$limit = null){
+    public static function select($column, $table, $whereequals = [], $limit = null){
         $sql = self::getInstance();
         if(is_array($column)){
             $querycolumn = implode(", ","".$column."");
@@ -175,7 +175,7 @@ class Simple {
             $valuestring .= "`".$key."` ".$value.",";
         }
         $valuestring .= "PRIMARY KEY(".$primarykey.")";
-        $query = self::getInstance()->connection->prepare("CREATE TABLE ".$table." (".$valuestring.") ");
+        $query = self::getInstance()->connection->prepare("CREATE TABLE IF NOT EXISTS ".$table." (".$valuestring.") ");
         $query->execute();
     }
 
