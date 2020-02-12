@@ -24,7 +24,7 @@ class Migration{
         $migration_dir = SimpleSQL::$root.'/migration';
         if (file_exists($migration_dir) && is_dir($migration_dir)) {
             return scandir($migration_dir);
-        }else{
+        } else {
             throw new MigrationException("Migration folder does not exist");
         }
     }
@@ -58,13 +58,13 @@ class Migration{
     }
 
     private function getMigrations(){
-        if(!$this->simplesql->exists("simplesql_migration", [])){
+        if($this->simplesql->exists("simplesql_migration", [])){
             $this->migrations = $this->simplesql->select("*","simplesql_migration",[]);
         }
     }
 
     private function lastMigration(){
-        if($this->migrations == null){
+        if($this->migrations === null){
             return [
                 "version" => 0
             ];
@@ -98,7 +98,7 @@ class Migration{
                 }
             }
             return true;
-        } catch(Exception $e){
+        } catch(\Exception $e){
             return false;
         }
     }
@@ -107,7 +107,7 @@ class Migration{
         try {
             include(SimpleSQL::$root.'/migration/'.$file);
             return true;
-        } catch (Exception $e){
+        } catch (\Exception $e){
             return false;
         }
     }
