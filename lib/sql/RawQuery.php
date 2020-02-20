@@ -1,11 +1,11 @@
 <?php
 namespace lib\sql;
 
-class RawQuery{
+class RawQuery {
     
-    public $query,$values;
+    public $query, $values;
 
-    public function __construct($query, $array...){
+    public function __construct($query){
         $this->values = $query;
         $this->query = array_shift($this->values);
         $this->decode();

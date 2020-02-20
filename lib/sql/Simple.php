@@ -2,16 +2,13 @@
 namespace lib\sql;
 
 use lib\SimpleSQL;
-use lib\sql\SimpleQuery;
 use lib\database\Connection;
 use lib\exception\InvalidInputException;
 use lib\exception\PermissionException;
-use lib\exception\SimpleSQLException;
 
 class Simple {
 
     private $config;
-    private $settings;
 
     public $connection;
     public $migration;
@@ -58,24 +55,24 @@ class Simple {
 
     public function where($whereequals){
         $wherestring = "";
-        if(is_array($whereequals)){
+        if (is_array($whereequals)) {
             $size = sizeof($whereequals);
-            for($i = 0; $i < $size; $i++){             
-                if($i == 0){
+            for ($i = 0; $i < $size; $i++) {             
+                if ($i == 0) {
                     $wherestring .= " WHERE `".array_keys($whereequals)[$i]."`=:".array_keys($whereequals)[$i];
-                }else{
+                } else {
                     $wherestring .= " AND `".array_keys($whereequals)[$i]."`=:".array_keys($whereequals)[$i];
                 }
             }
             return $wherestring;
-        }else{
+        } else {
             throw new InvalidInputException($whereequals);
         }
     }
 
     public function bind($query,$whereequals){
         $size = sizeof($whereequals);
-        for($it = 0; $it < $size; $it++){
+        for ($it = 0; $it < $size; $it++) {
             $query->bindParam(":".array_keys($whereequals)[$it],$whereequals[array_keys($whereequals)[$it]]);
         }
         return $query;
@@ -89,26 +86,27 @@ class Simple {
 
     public static function select($column, $table, $whereequals = [], $limit = null){
         $sql = self::getInstance();
-        if(is_array($column)){
-            $querycolumn = implode(", ","".$column."");
-        }elseif($column == "*"){
+        if(is_array($column)) {
+            $querycolumn = implode(", ",$column);
+        } elseif ($column == "*") {
             $querycolumn = "*";
-        }else{
+        } else {
             $querycolumn = " ".$column ." ";
         }
+
         $query = $sql->connection->prepare("SELECT ".$querycolumn." FROM ".$table."".$sql->where($whereequals));
         $sql->bind($query,$whereequals)->execute();
         $fetch  = $query->fetchAll();
-        if(!empty($fetch)){
+        if(!empty($fetch)) {
             $output = [];
-            if(count($fetch) > 1 || $column == "*"){
+            if(count($fetch) > 1 || $column == "*") {
                 foreach($fetch as $result){
-                    $result = array_filter($result,function($var){
+                    $result = array_filter($result, function($var) {
                         return !is_int($var);
                     },ARRAY_FILTER_USE_KEY);
                     array_push($output,$result);
                 }
-            }else{
+            } else {
                 return $fetch[0][0];
             }
             return $output;
@@ -120,23 +118,26 @@ class Simple {
         $sql = self::getInstance()->connection;
         $s = self::getInstance();
         $values = array();
+
         if(is_array($column)){
             $squery = "UPDATE ".$table." SET";
             $columnnumber = 0;
             foreach($column as $col){
-                $key    = $this->create_key();
-                $squery  .= " SET `".$col."`=:".$key;
+                $key = $s->create_key();
+                $squery .= " SET `".$col."`=:".$key;
                 $columnnumber++;
             }
             $squery .= $s->where($whereequals);
-            $query = $s->connection->prepare($squery);
+            $query = $sql->prepare($squery);
         }else{
             $values[":value"] = $to;
             $query = $s->connection->prepare("UPDATE `".$table."` SET `".$column."`=:value".$s->where($whereequals));
         }
+
         foreach(array_keys($values) as $columnkey){
             $query->bindParam($columnkey,$values[$columnkey]);  
         }
+
         $s->bind($query,$whereequals)->execute();
     }
 
@@ -257,9 +258,7 @@ class Simple {
 
     }
 
-    private function create_key(){
+    public function create_key(){
         return md5(microtime().rand());
     }
 }
-
-?>
